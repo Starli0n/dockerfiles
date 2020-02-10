@@ -14,27 +14,63 @@ env_var: # Print environnement variables
 	@echo USER=$(USER)
 	@echo UID=$(UID)
 	@echo GID=$(GID)
+	@echo XAUTHORITY=$(XAUTHORITY)
 
 .PHONY: env
 env: # Init default value
 	cp .env.default .env
+	systemctl --user show-environment | grep XAUTHORITY>>.env
 
-.PHONY: build-all
-build-all: build-base
 
-.PHONY: all-base
-all-base: build-base run-base
+### all
 
-.PHONY: build-base
-build-base: # Build docker image locally
+.PHONY: build
+build: base-build x11-build xeyes-build
+
+
+### base
+
+.PHONY: base-build
+base-build:
 	docker build ./base -t stl-base:latest \
 		--build-arg STL_BASE_IMAGE \
-		--build-arg STL_BASE_TAG \
+		--build-arg STL_BASE_TAG
+
+.PHONY: base-run
+base-run:
+	docker run -it --rm stl-base:latest
+
+
+### x11
+
+.PHONY: x11-build
+x11-build:
+	docker build ./x11 -t stl-x11:latest \
 		--build-arg HOST_USER=${USER} \
 		--build-arg HOST_UID=${UID} \
 		--build-arg HOST_GID=${GID}
 
-.PHONY: run-base
-run-base: # -u ${UID}:${GID}
-	docker run -it --rm --name stl-base --hostname stl-base -v ${HOME}:${HOME} stl-base:latest
+.PHONY: x11-run
+x11-run:
+	docker run -it --rm \
+		-w /root \
+		-e DISPLAY \
+		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		-v ${XAUTHORITY}:/root/.Xauthority:ro \
+		stl-x11:latest
+
+
+### xeyes
+
+.PHONY: xeyes-build
+xeyes-build:
+	docker build ./xeyes -t stl-xeyes:latest
+
+.PHONY: xeyes-run
+xeyes-run:
+	docker run -it --rm \
+		-u ${USER} -w /home/${USER} \
+		-e DISPLAY \
+		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		stl-xeyes:latest
 
