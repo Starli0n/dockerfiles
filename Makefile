@@ -3,6 +3,9 @@ HOME ?= $(HOME)
 USER ?= $(USER)
 UID ?= $(shell id -u)
 GID ?= $(shell id -g)
+ROOT_ARGS=-w /root --entrypoint bash -v ${XAUTHORITY}:/root/.Xauthority:ro
+USER_ARGS=-u ${USER} -w /home/${USER}
+X11_ARGS=-e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:ro
 
 -include .env
 export $(shell sed 's/=.*//' .env)
@@ -15,6 +18,9 @@ env_var: # Print environnement variables
 	@echo UID=$(UID)
 	@echo GID=$(GID)
 	@echo XAUTHORITY=$(XAUTHORITY)
+	@echo ROOT_ARGS=$(ROOT_ARGS)
+	@echo USER_ARGS=$(USER_ARGS)
+	@echo X11_ARGS=$(X11_ARGS)
 
 .PHONY: env
 env: # Init default value
@@ -50,14 +56,9 @@ x11-build:
 		--build-arg HOST_UID=${UID} \
 		--build-arg HOST_GID=${GID}
 
-.PHONY: x11-run
-x11-run:
-	docker run -it --rm \
-		-w /root \
-		-e DISPLAY \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		-v ${XAUTHORITY}:/root/.Xauthority:ro \
-		stl-x11:latest
+.PHONY: x11
+x11:
+	docker run -it --rm ${ROOT_ARGS} ${X11_ARGS} stl-x11:latest
 
 
 ### xeyes
@@ -66,13 +67,9 @@ x11-run:
 xeyes-build:
 	docker build ./xeyes -t stl-xeyes:latest
 
-.PHONY: xeyes-run
-xeyes-run:
-	docker run -it --rm \
-		-u ${USER} -w /home/${USER} \
-		-e DISPLAY \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		stl-xeyes:latest
+.PHONY: xeyes
+xeyes:
+	docker run -it --rm ${USER_ARGS} ${X11_ARGS} stl-xeyes:latest
 
 
 ### firefox
@@ -81,20 +78,11 @@ xeyes-run:
 firefox-build:
 	docker build ./firefox -t stl-firefox:latest
 
-.PHONY: firefox-run
-firefox-run:
-	docker run -it --rm \
-		-u ${USER} -w /home/${USER} \
-		-e DISPLAY \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		stl-firefox:latest "--new-instance"
+.PHONY: firefox
+firefox:
+	docker run -it --rm ${USER_ARGS} ${X11_ARGS} stl-firefox:latest "--new-instance"
 
-.PHONY: firefox-run-admin
-firefox-run-admin:
-	docker run -it --rm \
-		-w /root --entrypoint="bash" \
-		-e DISPLAY \
-		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-		-v ${XAUTHORITY}:/root/.Xauthority:ro \
-		stl-firefox:latest
+.PHONY: firefox-admin
+firefox-admin:
+	docker run -it --rm	${ROOT_ARGS} ${X11_ARGS} stl-firefox:latest
 
