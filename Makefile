@@ -25,7 +25,7 @@ env: # Init default value
 ### all
 
 .PHONY: build
-build: base-build x11-build xeyes-build
+build: base-build x11-build xeyes-build firefox-build
 
 
 ### base
@@ -73,4 +73,28 @@ xeyes-run:
 		-e DISPLAY \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 		stl-xeyes:latest
+
+
+### firefox
+
+.PHONY: firefox-build
+firefox-build:
+	docker build ./firefox -t stl-firefox:latest
+
+.PHONY: firefox-run
+firefox-run:
+	docker run -it --rm \
+		-u ${USER} -w /home/${USER} \
+		-e DISPLAY \
+		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		stl-firefox:latest "--new-instance"
+
+.PHONY: firefox-run-admin
+firefox-run-admin:
+	docker run -it --rm \
+		-w /root --entrypoint="bash" \
+		-e DISPLAY \
+		-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+		-v ${XAUTHORITY}:/root/.Xauthority:ro \
+		stl-firefox:latest
 
