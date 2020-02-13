@@ -31,7 +31,7 @@ env: # Init default value
 ### all
 
 .PHONY: build
-build: base-build x11-build xeyes-build firefox-build
+build: base-build x11-build xeyes-build firefox-build openvpn-build
 
 
 ### base
@@ -42,8 +42,8 @@ base-build:
 		--build-arg STL_BASE_IMAGE \
 		--build-arg STL_BASE_TAG
 
-.PHONY: base-run
-base-run:
+.PHONY: base
+base:
 	docker run -it --rm stl-base:latest
 
 
@@ -85,4 +85,22 @@ firefox:
 .PHONY: firefox-admin
 firefox-admin:
 	docker run -it --rm	${ROOT_ARGS} ${X11_ARGS} stl-firefox:latest
+
+
+### openvpn
+
+.PHONY: openvpn-build
+openvpn-build:
+	docker build ./openvpn -t stl-openvpn:latest
+
+.PHONY: openvpn
+openvpn:
+	docker run -it --rm --privileged --name stl-openvpn \
+		-v ${HOME}/.ovpn3:/ovpn:ro \
+		stl-openvpn:latest
+
+.PHONY: fireovpn
+fireovpn:
+	docker run -it --rm ${USER_ARGS} ${X11_ARGS} --network container:stl-openvpn \
+		stl-firefox:latest "--new-instance"
 
