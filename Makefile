@@ -80,7 +80,12 @@ firefox-build:
 
 .PHONY: firefox
 firefox:
-	docker run -it --rm ${USER_ARGS} ${X11_ARGS} stl-firefox:latest "--new-instance"
+	docker run -it --rm ${USER_ARGS} ${X11_ARGS} \
+		--shm-size 4g \
+		--group-add audio --group-add video \
+		--device /dev/snd --device /dev/dri \
+		-v /etc/localtime:/etc/localtime:ro \
+		stl-firefox:latest "--new-instance"
 
 .PHONY: firefox-admin
 firefox-admin:
@@ -101,6 +106,10 @@ openvpn:
 
 .PHONY: fireovpn
 fireovpn:
-	docker run -it --rm ${USER_ARGS} ${X11_ARGS} --network container:stl-openvpn \
+	docker run -it --rm ${USER_ARGS} ${X11_ARGS} \
+		--shm-size 4g \
+		--group-add audio --group-add video \
+		--device /dev/snd --device /dev/dri \
+		-v /etc/localtime:/etc/localtime:ro \
 		stl-firefox:latest "--new-instance"
 
