@@ -31,7 +31,7 @@ env: # Init default value
 ### all
 
 .PHONY: build
-build: base-build x11-build xeyes-build firefox-build openvpn-build
+build: base-build user-build xeyes-build firefox-build openvpn-build
 
 
 ### base
@@ -47,18 +47,18 @@ base:
 	docker run -it --rm stl-base:latest
 
 
-### x11
+### user
 
-.PHONY: x11-build
-x11-build:
-	docker build ./x11 -t stl-x11:latest \
+.PHONY: user-build
+user-build:
+	docker build ./user -t stl-user:latest \
 		--build-arg HOST_USER=${USER} \
 		--build-arg HOST_UID=${UID} \
 		--build-arg HOST_GID=${GID}
 
-.PHONY: x11
-x11:
-	docker run -it --rm ${ROOT_ARGS} ${X11_ARGS} stl-x11:latest
+.PHONY: user
+user:
+	docker run -it --rm ${USER_ARGS} stl-user:latest
 
 
 ### xeyes

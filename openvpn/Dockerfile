@@ -1,4 +1,4 @@
-FROM stl-x11:latest
+FROM stl-base:latest
 
 RUN apt-get update && apt-get install -y \
 	openvpn \

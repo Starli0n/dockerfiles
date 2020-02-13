@@ -1,4 +1,4 @@
-FROM stl-x11:latest
+FROM stl-user:latest
 
 RUN apt-get update && apt-get install -y \
 	x11-apps \

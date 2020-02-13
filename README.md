@@ -5,7 +5,7 @@ Some dockerfiles to run on the desktop
 
 * base
 	* openvpn
-	* x11
+	* user
 		* firefox
 		* xeyes
 
