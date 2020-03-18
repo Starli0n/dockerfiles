@@ -26,6 +26,7 @@ env_var: # Print environnement variables
 env: # Init default value
 	cp .env.default .env
 	systemctl --user show-environment | grep XAUTHORITY>>.env
+	mkdir -p data/{yandex/config,yandex/disk}
 
 
 ### all
@@ -38,7 +39,7 @@ build: base-build user-build xeyes-build firefox-build openvpn-build
 
 .PHONY: base-build
 base-build:
-	docker build ./base -t stl-base:latest \
+	docker build ./base --no-cache -t stl-base:latest \
 		--build-arg STL_BASE_IMAGE \
 		--build-arg STL_BASE_TAG
 

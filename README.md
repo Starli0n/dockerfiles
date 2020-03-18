@@ -8,7 +8,7 @@ Some dockerfiles to run on the desktop
 	* user
 		* firefox
 		* xeyes
-
+		* yandex
 
 ## X11
 
